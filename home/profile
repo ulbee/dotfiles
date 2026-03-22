@@ -15,7 +15,7 @@ _cached_eval brew-shellenv /opt/homebrew/bin/brew shellenv
 
 export GOROOT="$HOMEBREW_PREFIX/opt/go/libexec"
 
-command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd)"
+eval "$(fnm env --use-on-cd)"
 
 export PATH=$HOME/.local/bin:$GOROOT/bin:./node_modules/.bin:$HOME/arcadia:$PATH
 
