@@ -134,5 +134,9 @@
     "frontend-design@claude-plugins-official": true,
     "code-simplifier@claude-plugins-official": true,
     "lua-lsp@claude-plugins-official": true
-  }
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.eliza.yandex.net/raw/anthropic"
+  },
+  "alwaysThinkingEnabled": true
 }
