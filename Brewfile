@@ -2,7 +2,6 @@ tap "laishulu/homebrew", "https://github.com/laishulu/homebrew-homebrew"
 tap "dracula/install"
 tap "yandex/arc", "https://arc-vcs.yandex-team.ru/homebrew-tap"
 
-brew "fnm"
 brew "trash"
 brew "zsh"
 brew "antidote"
