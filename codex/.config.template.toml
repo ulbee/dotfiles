@@ -1,0 +1,88 @@
+personality = "pragmatic"
+model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
+
+[features]
+multi_agent = true
+
+[plugins."github@openai-curated"]
+enabled = true
+
+[plugins."build-ios-apps@openai-curated"]
+enabled = true
+
+[plugins."build-web-apps@openai-curated"]
+enabled = true
+
+[plugins."google-drive@openai-curated"]
+enabled = true
+
+[plugins."anthropics@dotfiles-local"]
+enabled = true
+
+[plugins."impeccable@dotfiles-local"]
+enabled = true
+
+[plugins."mblode@dotfiles-local"]
+enabled = true
+
+# __MCP_SERVERS__
+
+[apps.connector_76869538009648d5b282a4bb21c3d157.tools.github_add_comment_to_issue]
+approval_mode = "approve"
+
+[[skills.config]]
+name = "build-ios-apps:swiftui-liquid-glass"
+enabled = false
+
+[[skills.config]]
+name = "build-ios-apps:ios-debugger-agent"
+enabled = false
+
+[[skills.config]]
+name = "build-ios-apps:ios-app-intents"
+enabled = false
+
+[[skills.config]]
+name = "build-ios-apps:swiftui-performance-audit"
+enabled = false
+
+[[skills.config]]
+name = "build-ios-apps:swiftui-ui-patterns"
+enabled = false
+
+[[skills.config]]
+name = "build-ios-apps:swiftui-view-refactor"
+enabled = false
+
+[[skills.config]]
+name = "build-web-apps:deploy-to-vercel"
+enabled = false
+
+[[skills.config]]
+name = "build-web-apps:supabase-postgres-best-practices"
+enabled = false
+
+[[skills.config]]
+name = "build-web-apps:stripe-best-practices"
+enabled = false
+
+[projects."/Users/veged/Documents/TED-ai-and-programming"]
+trust_level = "trusted"
+
+[projects."/Users/veged/Documents/ai-for-junior"]
+trust_level = "trusted"
+
+[projects."/Users/veged/dotfiles"]
+trust_level = "trusted"
+
+[projects."/Users/veged/Documents/slidev-theme-practicum"]
+trust_level = "trusted"
+
+[projects."/Users/veged/Documents/Playground"]
+trust_level = "trusted"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-04-17T17:40:16Z"
+source_type = "local"
+source = "/Users/veged/.codex/.tmp/bundled-marketplaces/openai-bundled"

@@ -138,14 +138,14 @@
       "Read(//private/tmp/**)",
       "Bash(for dir:*)",
       "Bash(for check:*)",
-      "mcp__fff__grep",
       "Read(//Users/veged/.claude/**)",
       "Read(//Users/veged/.agents/**)",
       "Read(//Users/veged/dotfiles/ai/**)",
       "Read(//Users/veged/dotfiles/claude/**)",
       "WebSearch",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "Bash(git init:*)"
     ],
     "additionalDirectories": [
       "/private/tmp"
@@ -161,10 +161,20 @@
     "gopls-lsp@claude-plugins-official": true,
     "github@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "visual-explainer@visual-explainer-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "visual-explainer-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "nicobailon/visual-explainer"
+      }
+    }
   },
   "env": {
     "ANTHROPIC_BASE_URL": "https://api.eliza.yandex.net/raw/anthropic"
   },
+  "effortLevel": "xhigh",
   "alwaysThinkingEnabled": true
 }

@@ -255,37 +255,5 @@
       "options": { "baseURL": "https://openrouter.ai/api/v1" }
     }
   },
-  "mcp": {
-    // --- yandex_mcp_store (devtools server) ---
-    // NOTE: opencode MCP поддерживает только local (command) и remote (url) серверы.
-    // yandex_mcp_store серверы (devtools, wiki, tasklets, bilim, yaart, tracker_mcp,
-    // infractl, deepagent, intrasearch, monium_mcp, yt, abc, warden, staff_api_mcp,
-    // idp, femida_mcp) нужно настраивать как local или remote.
-    // Ниже — remote MCP серверы из секции generic:
-
-    "context7": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp"
-    },
-    "websearch": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.exa.ai"
-    },
-    "grep_app": {
-      "enabled": false,
-      "type": "remote",
-      "url": "https://mcp.grep.app"
-    },
-    "playwright": {
-      "enabled": false,
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@playwright/mcp@latest"
-      ]
-    }
-  }
+  "mcp": __MCP_JSON__
 }
