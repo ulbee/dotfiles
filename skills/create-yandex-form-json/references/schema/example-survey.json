@@ -1,0 +1,267 @@
+{
+  "version": 2,
+  "questions": {
+    "pages": [
+      {
+        "items": [
+          {
+            "id": null,
+            "label": "В своей работе я пользуюсь AI инструментами",
+            "slug": "q1_ai_usage_frequency",
+            "hidden": false,
+            "type": "enum",
+            "widget": "radio",
+            "items": [
+              { "id": null, "slug": "often", "label": "Часто", "hidden": false },
+              { "id": null, "slug": "rarely", "label": "Редко", "hidden": false },
+              { "id": null, "slug": "never", "label": "Никогда", "hidden": false }
+            ],
+            "modify_choices": "natural",
+            "validators": [{ "type": "required" }],
+            "show_first": false,
+            "show_suggest": false
+          },
+          {
+            "id": null,
+            "label": "В каких задачах ты используешь AI?",
+            "comment": "Можно выбрать несколько вариантов",
+            "slug": "q2_tasks_where_use_ai",
+            "hidden": false,
+            "conditions": [
+              {
+                "id": null,
+                "operator": "or",
+                "items": [
+                  {
+                    "operator": "and",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q1_ai_usage_frequency",
+                    "value": "often"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q1_ai_usage_frequency",
+                    "value": "rarely"
+                  }
+                ]
+              }
+            ],
+            "type": "enum",
+            "widget": "checkbox",
+            "items": [
+              { "id": null, "slug": "test_cases", "label": "Написание тест-кейсов", "hidden": false },
+              { "id": null, "slug": "autotests", "label": "Написание автотестов", "hidden": false },
+              { "id": null, "slug": "error_analysis", "label": "Анализ ошибок и крешей", "hidden": false },
+              { "id": null, "slug": "meetings", "label": "Обработка встреч", "hidden": false },
+              { "id": null, "slug": "documentation", "label": "Написание документации", "hidden": false },
+              { "id": null, "slug": "other", "label": "Другое", "hidden": false }
+            ],
+            "modify_choices": "natural",
+            "validators": [{ "type": "required" }]
+          },
+          {
+            "id": null,
+            "label": "Какие инструменты вы используете?",
+            "comment": "Можно выбрать несколько вариантов",
+            "slug": "q3_which_tools",
+            "hidden": false,
+            "conditions": [
+              {
+                "id": null,
+                "operator": "or",
+                "items": [
+                  {
+                    "operator": "and",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q2_tasks_where_use_ai",
+                    "value": "test_cases"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q2_tasks_where_use_ai",
+                    "value": "autotests"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q2_tasks_where_use_ai",
+                    "value": "error_analysis"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q2_tasks_where_use_ai",
+                    "value": "meetings"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q2_tasks_where_use_ai",
+                    "value": "documentation"
+                  }
+                ]
+              }
+            ],
+            "type": "enum",
+            "widget": "checkbox",
+            "items": [
+              { "id": null, "slug": "cursor_ide", "label": "Cursor IDE или другой AI-агент в IDE", "hidden": false },
+              { "id": null, "slug": "chatgpt", "label": "ChatGPT или другой внешний ассистент", "hidden": false },
+              { "id": null, "slug": "ai_yandex", "label": "ai.yandex-team.ru", "hidden": false },
+              { "id": null, "slug": "deepagent", "label": "deepagent.yandex-team.ru", "hidden": false },
+              { "id": null, "slug": "neuroreviewer", "label": "Нейроревьюер в CI", "hidden": false },
+              { "id": null, "slug": "meeting_summarizer", "label": "Суммаризатор встреч", "hidden": false },
+              { "id": null, "slug": "other_tools", "label": "Другое", "hidden": false }
+            ],
+            "modify_choices": "natural"
+          },
+          {
+            "id": null,
+            "label": "Расскажите, в каких еще задачах вам помогают AI-инструменты?",
+            "slug": "q4_other_tasks_description",
+            "hidden": false,
+            "conditions": [
+              {
+                "id": null,
+                "operator": "or",
+                "items": [
+                  {
+                    "operator": "and",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q2_tasks_where_use_ai",
+                    "value": "other"
+                  }
+                ]
+              }
+            ],
+            "type": "string",
+            "multiline": true
+          },
+          {
+            "id": null,
+            "label": "Что мешает вам использовать AI-инструменты?",
+            "slug": "q5_reason_not_using",
+            "hidden": false,
+            "conditions": [
+              {
+                "id": null,
+                "operator": "or",
+                "items": [
+                  {
+                    "operator": "and",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q1_ai_usage_frequency",
+                    "value": "never"
+                  }
+                ]
+              }
+            ],
+            "type": "enum",
+            "widget": "radio",
+            "items": [
+              { "id": null, "slug": "difficult_unclear", "label": "Сложно и непонятно", "hidden": false },
+              { "id": null, "slug": "no_time", "label": "Понятно, но нет времени использовать", "hidden": false },
+              { "id": null, "slug": "unclear_no_time", "label": "Непонятно и нет времени изучать", "hidden": false },
+              { "id": null, "slug": "not_needed", "label": "Они не требуются в моей работе", "hidden": false },
+              { "id": null, "slug": "other_reason", "label": "Другая причина", "hidden": false }
+            ],
+            "modify_choices": "natural",
+            "validators": [{ "type": "required" }]
+          },
+          {
+            "id": null,
+            "label": "Чем мы могли бы тебе помочь?",
+            "slug": "q6_how_can_we_help",
+            "hidden": false,
+            "conditions": [
+              {
+                "id": null,
+                "operator": "or",
+                "items": [
+                  {
+                    "operator": "and",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q1_ai_usage_frequency",
+                    "value": "often"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q1_ai_usage_frequency",
+                    "value": "rarely"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q5_reason_not_using",
+                    "value": "difficult_unclear"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q5_reason_not_using",
+                    "value": "no_time"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q5_reason_not_using",
+                    "value": "unclear_no_time"
+                  },
+                  {
+                    "operator": "or",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q5_reason_not_using",
+                    "value": "other_reason"
+                  }
+                ]
+              }
+            ],
+            "type": "string",
+            "multiline": true
+          },
+          {
+            "id": null,
+            "label": "Напиши в чём причина",
+            "slug": "q7_other_reason_description",
+            "hidden": false,
+            "conditions": [
+              {
+                "id": null,
+                "operator": "or",
+                "items": [
+                  {
+                    "operator": "and",
+                    "type": "question",
+                    "condition": "eq",
+                    "question": "q5_reason_not_using",
+                    "value": "other_reason"
+                  }
+                ]
+              }
+            ],
+            "type": "string",
+            "multiline": true
+          }
+        ]
+      }
+    ]
+  }
+}

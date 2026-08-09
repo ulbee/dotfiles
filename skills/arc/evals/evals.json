@@ -1,0 +1,504 @@
+{
+  "skill_name": "arc",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Я в директории /repo/services/myservice/. Покажи какая сейчас ветка.",
+      "expected_output": "Использует arc info --json и извлекает поле branch, НЕ arc branch --show-current",
+      "files": [],
+      "expectations": [
+        "Использует команду arc info --json для получения текущей ветки",
+        "НЕ использует arc branch --show-current или git branch --show-current",
+        "Извлекает поле branch из JSON-вывода"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Покажи что изменилось в моей ветке относительно trunk. Хочу увидеть и статистику файлов, и полный diff.",
+      "expected_output": "Использует arc diff -B для полного diff и arc diff -B --stat для статистики",
+      "files": [],
+      "expectations": [
+        "Использует arc diff -B для полного diff (merge-base diff)",
+        "НЕ использует arc diff trunk...HEAD (три точки, молча пустой вывод)",
+        "НЕ использует arc diff trunk..HEAD (range нотация, пустой вывод в arc diff)",
+        "Для статистики использует arc diff -B --stat или arc log --stat trunk..HEAD"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Покажи последние 5 коммитов в моей ветке",
+      "expected_output": "Использует arc log -n 5, НЕ arc log -5",
+      "files": [],
+      "expectations": [
+        "Использует arc log -n 5 (полная форма флага)",
+        "НЕ использует arc log -5 (сокращённый -N не поддерживается)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Я на ветке users/<username>/TICKET-4567. Нужно запушить с force.",
+      "expected_output": "Использует arc push -f -u users/<username>/TICKET-4567 с явным именем ветки",
+      "files": [],
+      "expectations": [
+        "Использует arc push -f -u users/<username>/TICKET-4567 (явное имя ветки)",
+        "НЕ использует arc push --force без указания имени ветки (двойной prefix)",
+        "Предупреждает или учитывает проблему двойного prefix users/"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Переключись на ветку тикета TICKET-1234",
+      "expected_output": "Сразу делает arc checkout users/<username>/TICKET-1234, НЕ ищет через arc branch -a | grep",
+      "files": [],
+      "expectations": [
+        "Делает arc checkout users/<username>/TICKET-1234 (или с другим форматом имени, но через lazy fetch)",
+        "НЕ начинает с arc branch -a для поиска ветки",
+        "Использует логин <username> в пути ветки"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Покажи мои открытые PR",
+      "expected_output": "Использует arc pr list -o, НЕ arc pr list --mine",
+      "files": [],
+      "expectations": [
+        "Использует arc pr list -o (или arc pr list, т.к. -o это дефолт)",
+        "НЕ использует arc pr list --mine (флаг не существует)"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Создай PR с описанием 'Add caching layer for user sessions'. Отправь сразу на ревью.",
+      "expected_output": "Использует arc pr create --publish -m '...' или arc submit с -m",
+      "files": [],
+      "expectations": [
+        "Передаёт описание через флаг -m или --message (НЕ открывает интерактивный редактор)",
+        "Использует --publish для отправки на ревью",
+        "Команда не требует интерактивного ввода"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Я внёс изменения в файлы server/handler.go и server/handler_test.go. Нужно запушить эти изменения в мою ветку users/<username>/TICKET-4567.",
+      "expected_output": "Полный workflow: arc add конкретных файлов, arc commit -m, arc push с явным именем ветки",
+      "files": [],
+      "expectations": [
+        "Добавляет конкретные файлы через arc add server/handler.go server/handler_test.go (НЕ arc add .)",
+        "Делает arc commit -m с сообщением",
+        "Делает arc push с явным именем ветки users/<username>/TICKET-4567",
+        "Не использует git команды"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Хочу посмотреть файл server/utils/request.js из коммита abc1234567890abc1234567890abc1234567890a. Я сейчас в /repo/services/myservice/.",
+      "expected_output": "Предупреждает о баге arc show из подпапки. Предлагает workaround",
+      "files": [],
+      "expectations": [
+        "Предупреждает что arc show COMMIT:PATH сломан из подпапки",
+        "Предлагает альтернативу: cd в корень репо, или arc checkout, или cp",
+        "Использует полный 40-символьный хеш"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Запуши",
+      "expected_output": "Полный workflow: arc status, arc add конкретных файлов, arc commit -m, arc push -u с явным именем ветки",
+      "files": [],
+      "expectations": [
+        "Начинает с arc status для проверки состояния",
+        "Использует arc add для конкретных файлов (НЕ arc add .)",
+        "Делает arc commit -m с сообщением (НЕ без -m)",
+        "Делает arc push -u с явным именем ветки (НЕ голый arc push)"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Создай PR",
+      "expected_output": "Выясняет контекст, пушит, создаёт PR с arc pr create --publish -m",
+      "files": [],
+      "expectations": [
+        "Проверяет состояние (arc status или arc info)",
+        "Пушит если нужно (arc push -u с явным именем ветки)",
+        "Создаёт PR через arc pr create --publish -m (НЕ без -m)",
+        "НЕ использует arc pr create без флага -m"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Сделай коммит и отправь на ревью",
+      "expected_output": "arc add конкретных файлов, arc commit -m, arc push -u, arc pr create --publish -m",
+      "files": [],
+      "expectations": [
+        "Использует arc add для конкретных файлов",
+        "Делает arc commit -m с сообщением",
+        "Пушит через arc push -u с явным именем ветки",
+        "Создаёт PR через arc pr create --publish -m"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Обновить PR",
+      "expected_output": "Коммитит и пушит. PR обновляется автоматически",
+      "files": [],
+      "expectations": [
+        "Использует arc add для конкретных файлов",
+        "Делает arc commit -m с сообщением",
+        "Пушит изменения (arc push или arc submit)",
+        "Объясняет что PR обновляется автоматически при пуше"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Запуши в мою ветку",
+      "expected_output": "Определяет текущую ветку через arc info --json, пушит с явным именем",
+      "files": [],
+      "expectations": [
+        "Определяет текущую ветку (arc info --json или arc status)",
+        "Делает arc push -u с явным именем ветки",
+        "НЕ делает голый arc push без указания ветки"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "Переключись на trunk и подтяни последние изменения",
+      "expected_output": "arc checkout trunk + arc pull",
+      "files": [],
+      "expectations": [
+        "Делает arc checkout trunk",
+        "Делает arc pull для получения последних изменений",
+        "НЕ использует git checkout или git pull"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Rebase на trunk и запуши",
+      "expected_output": "arc rebase trunk + arc push -f -u с явным именем ветки",
+      "files": [],
+      "expectations": [
+        "Делает arc rebase trunk",
+        "Пушит с force через arc push -f -u с явным именем ветки",
+        "НЕ использует голый arc push --force (двойной prefix)"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "Посмотри что в PR 42857",
+      "expected_output": "arc pr status 42857 + arc pr changes 42857, НЕ arc pr view",
+      "files": [],
+      "expectations": [
+        "Использует arc pr status 42857 для получения метаданных",
+        "Использует arc pr changes 42857 для просмотра diff",
+        "НЕ использует arc pr view (открывает браузер)"
+      ]
+    },
+
+    {
+      "id": 18,
+      "prompt": "Покажи только коммиты моей ветки, без коммитов из trunk",
+      "expected_output": "Использует arc log trunk..HEAD, НЕ arc log HEAD --not trunk",
+      "files": [],
+      "expectations": [
+        "Использует arc log trunk..HEAD (range нотация работает в arc log)",
+        "НЕ использует arc log HEAD --not trunk (git-синтаксис, не поддерживается)",
+        "НЕ использует arc log -5 (сокращённая форма)"
+      ],
+      "covers": "gotcha: log excluding trunk commits (SKILL.md line 108)"
+    },
+    {
+      "id": 19,
+      "prompt": "Покажи лог коммитов компактно, хеш и сообщение в одну строку",
+      "expected_output": "Использует arc log --oneline, НЕ arc log --format",
+      "files": [],
+      "expectations": [
+        "Использует arc log --oneline",
+        "НЕ использует arc log --format (печатает литеральную строку в arc)"
+      ],
+      "covers": "gotcha: custom log format (SKILL.md line 112)"
+    },
+    {
+      "id": 20,
+      "prompt": "У меня незакоммиченные изменения, но срочно нужно переключиться на другую ветку. Сохрани текущую работу.",
+      "expected_output": "Использует arc stash push -m, потом можно восстановить через arc stash pop",
+      "files": [],
+      "expectations": [
+        "Использует arc stash push (НЕ голый arc stash или git stash)",
+        "Передаёт описание через -m для идентификации stash",
+        "Упоминает arc stash pop для восстановления"
+      ],
+      "covers": "reference-routed: stash commands (references/arc-commands.md)"
+    },
+    {
+      "id": 21,
+      "prompt": "Создай новую ветку fix-auth-bug от trunk",
+      "expected_output": "Использует arc checkout -b fix-auth-bug trunk",
+      "files": [],
+      "expectations": [
+        "Использует arc checkout -b fix-auth-bug trunk",
+        "НЕ использует git checkout или git switch",
+        "Создаёт ветку именно от trunk (не от HEAD)"
+      ],
+      "covers": "scenario: switch branches (SKILL.md line 83)"
+    },
+    {
+      "id": 22,
+      "prompt": "Создай PR и настрой автоматический мерж после прохождения всех проверок",
+      "expected_output": "Использует arc pr create --publish --merge -m, флаг --merge только в references",
+      "files": [],
+      "expectations": [
+        "Использует arc pr create с флагом --merge (auto-merge после проверок)",
+        "Использует --publish для публикации",
+        "Передаёт описание через -m (НЕ без -m)",
+        "Читает references/arc-commands.md для получения флага --merge (или знает его)"
+      ],
+      "covers": "reference-routed: PR flags (references/arc-commands.md line 107)"
+    },
+    {
+      "id": 23,
+      "prompt": "Покажи какие файлы я изменил в этой ветке, только имена без содержимого",
+      "expected_output": "Использует arc diff -B --name-only",
+      "files": [],
+      "expectations": [
+        "Использует arc diff -B (merge-base, изменения ветки)",
+        "Использует --name-only для вывода только имён файлов",
+        "НЕ использует arc diff trunk --name-only (может зависнуть)"
+      ],
+      "covers": "reference-routed: diff flags (references/diff-review.md line 36)"
+    },
+    {
+      "id": 24,
+      "prompt": "PR 55123 огромный, больше 5000 строк. Мне нужно вытащить список всех изменённых файлов, чтобы понять масштаб.",
+      "expected_output": "Использует arc pr changes 55123 | grep для извлечения списка файлов, или checkout + find",
+      "files": [],
+      "expectations": [
+        "Использует arc pr changes 55123 для получения diff",
+        "Извлекает список файлов (grep 'diff --git' или аналогичный парсинг)",
+        "НЕ использует arc pr view (открывает браузер)"
+      ],
+      "covers": "reference-routed: file list extraction (references/pr-review.md line 20)"
+    },
+    {
+      "id": 25,
+      "prompt": "Покажи что было в коммите a1b2c3d",
+      "expected_output": "Предупреждает о коротких хешах, просит полный 40-символьный хеш",
+      "files": [],
+      "expectations": [
+        "Предупреждает что короткие хеши неоднозначны в монорепозитории",
+        "Просит или использует полный 40-символьный хеш",
+        "НЕ передаёт короткий хеш напрямую в arc show/log"
+      ],
+      "covers": "monorepo pitfall: short hashes (SKILL.md line 143-145)"
+    },
+    {
+      "id": 26,
+      "prompt": "Удали ветку users/<username>/TICKET-old, она уже замержена",
+      "expected_output": "Использует arc branch -d, НЕ arc branch <name> (создаст новую ветку!)",
+      "files": [],
+      "expectations": [
+        "Использует arc branch -d users/<username>/TICKET-old",
+        "НЕ использует arc branch users/<username>/TICKET-old без флага (создаст ветку!)",
+        "НЕ использует git branch -d"
+      ],
+      "covers": "reference-routed: branch management (references/arc-commands.md line 44, 50)"
+    },
+    {
+      "id": 27,
+      "prompt": "Мне нужно получить список моих PR в машиночитаемом формате, чтобы распарсить скриптом",
+      "expected_output": "Использует arc pr list -o --json, парсит через python3",
+      "files": [],
+      "expectations": [
+        "Использует arc pr list с флагом --json",
+        "НЕ использует arc pr list --mine (не существует)",
+        "Предлагает парсинг через python3 -c или jq"
+      ],
+      "covers": "self-check rule: use --json (SKILL.md line 165)"
+    },
+    {
+      "id": 28,
+      "prompt": "Я на транке, внёс изменения в пару файлов. Хочу максимально просто отправить на ревью.",
+      "expected_output": "Предлагает arc submit -m для создания PR одной командой",
+      "files": [],
+      "expectations": [
+        "Предлагает arc submit -m как самый простой путь",
+        "Объясняет что submit создаёт ветку + коммитит + пушит + создаёт PR",
+        "Передаёт описание через -m (НЕ без -m)"
+      ],
+      "covers": "scenario: submit changes (SKILL.md)"
+    },
+    {
+      "id": 29,
+      "prompt": "Я уже делал arc submit раньше, сейчас на ветке pr-12345. Внёс ещё изменения, нужно обновить PR.",
+      "expected_output": "Использует arc submit без -m для обновления существующего PR",
+      "files": [],
+      "expectations": [
+        "Использует arc submit (без -m, т.к. PR уже существует)",
+        "НЕ создаёт новый PR",
+        "Объясняет что submit обновит итерацию существующего PR"
+      ],
+      "covers": "scenario: submit changes, update flow"
+    },
+    {
+      "id": 30,
+      "prompt": "arc submit выдал конфликты с транком. Что делать?",
+      "expected_output": "Объясняет: resolve files, arc add, arc submit снова. Или arc submit --abort.",
+      "files": [],
+      "expectations": [
+        "Объясняет что нужно разрешить конфликты в файлах",
+        "Упоминает arc add для пометки разрешённых файлов",
+        "Упоминает повторный arc submit после разрешения",
+        "Упоминает arc submit --abort как альтернативу"
+      ],
+      "covers": "reference-routed: submit conflict handling (references/submit-changes.md)"
+    },
+    {
+      "id": 31,
+      "prompt": "Я сделал submit для одного PR, но хочу создать ещё один независимый PR из других файлов, не трогая первый.",
+      "expected_output": "Использует arc submit --new -m для создания независимого PR",
+      "files": [],
+      "expectations": [
+        "Использует arc submit --new -m для создания нового независимого PR",
+        "НЕ путает с --stack (это для зависимых PR)",
+        "Объясняет что --new создаёт PR от той же точки транка"
+      ],
+      "covers": "reference-routed: submit --new (references/submit-changes.md)"
+    },
+
+    {
+      "id": 32,
+      "prompt": "Откати последний коммит, но так чтобы история сохранилась. Не хочу переписывать историю.",
+      "expected_output": "Использует arc revert для создания reverse-коммита, НЕ arc reset --hard",
+      "files": [],
+      "expectations": [
+        "Использует arc revert (создаёт обратный коммит, сохраняет историю)",
+        "НЕ использует arc reset --hard (это переписывает историю)",
+        "Использует полный 40-символьный хеш коммита"
+      ],
+      "covers": "scenario: revert and undo (SKILL.md)"
+    },
+    {
+      "id": 33,
+      "prompt": "Я изменил файл server/config.go, но передумал. Верни его к текущему состоянию ветки.",
+      "expected_output": "Использует arc checkout server/config.go для отмены изменений (без --)",
+      "files": [],
+      "expectations": [
+        "Использует arc checkout server/config.go (без -- разделителя)",
+        "НЕ использует git checkout",
+        "НЕ использует -- разделитель (arc интерпретирует его как путь к файлу)"
+      ],
+      "covers": "scenario: revert and undo, discard file changes"
+    },
+    {
+      "id": 34,
+      "prompt": "Верни файл utils/helper.go к состоянию из trunk",
+      "expected_output": "Использует arc checkout trunk utils/helper.go (без --)",
+      "files": [],
+      "expectations": [
+        "Использует arc checkout trunk utils/helper.go (без -- разделителя)",
+        "Использует двухаргументную форму checkout (commit + path)",
+        "НЕ использует -- разделитель (arc интерпретирует его как путь к файлу)"
+      ],
+      "covers": "scenario: revert and undo, restore from commit"
+    },
+    {
+      "id": 35,
+      "prompt": "Кто последний менял файл utils/auth.go? Покажи авторство построчно.",
+      "expected_output": "Использует arc blame utils/auth.go",
+      "files": [],
+      "expectations": [
+        "Использует arc blame utils/auth.go",
+        "НЕ использует git blame",
+        "Может предложить --json для структурированного вывода"
+      ],
+      "covers": "scenario: blame and investigate (SKILL.md)"
+    },
+    {
+      "id": 36,
+      "prompt": "Найди в каких коммитах добавлялась или удалялась строка parseToken",
+      "expected_output": "Использует arc log -S parseToken",
+      "files": [],
+      "expectations": [
+        "Использует arc log -S \"parseToken\" для поиска по содержимому изменений",
+        "НЕ использует git log -S"
+      ],
+      "covers": "scenario: blame and investigate, search by content"
+    },
+    {
+      "id": 37,
+      "prompt": "Сделал arc rebase trunk и всё сломалось, код не компилируется. Хочу вернуться к состоянию до ребейза.",
+      "expected_output": "Использует arc reset --hard ORIG_HEAD для отката ребейза",
+      "files": [],
+      "expectations": [
+        "Предлагает arc reset --hard ORIG_HEAD",
+        "Объясняет что ORIG_HEAD хранит состояние до rebase"
+      ],
+      "covers": "scenario: rebase and sync, ORIG_HEAD recovery"
+    },
+    {
+      "id": 38,
+      "prompt": "При rebase на trunk конфликты в 20 файлах. Я уверен что мои изменения правильные, хочу автоматически разрешить в пользу моей ветки.",
+      "expected_output": "Использует arc rebase trunk -X theirs",
+      "files": [],
+      "expectations": [
+        "Использует arc rebase trunk -X theirs (или -X theirs с arc rebase)",
+        "Объясняет что при rebase 'theirs' означает изменения текущей ветки (контринтуитивно)"
+      ],
+      "covers": "scenario: resolve conflicts, -X strategy"
+    },
+    {
+      "id": 39,
+      "prompt": "Удали серверную ветку users/<username>/TICKET-old-feature",
+      "expected_output": "Использует arc push -d users/<username>/TICKET-old-feature",
+      "files": [],
+      "expectations": [
+        "Использует arc push -d users/<username>/TICKET-old-feature",
+        "НЕ использует git push --delete или git push origin --delete"
+      ],
+      "covers": "reference: switch-branches.md, delete remote branch"
+    },
+    {
+      "id": 40,
+      "prompt": "Закрой PR 54321, он больше не нужен, мержить не надо",
+      "expected_output": "Использует arc pr discard --id 54321",
+      "files": [],
+      "expectations": [
+        "Использует arc pr discard --id 54321",
+        "НЕ использует gh pr close или arc pr close (не существует)"
+      ],
+      "covers": "reference: create-update-pr.md, close PR"
+    },
+    {
+      "id": 41,
+      "prompt": "Хочу сквошнуть все коммиты ветки в один, но не помню сколько их было",
+      "expected_output": "Использует arc merge-base trunk HEAD + arc reset --soft",
+      "files": [],
+      "expectations": [
+        "Использует arc merge-base trunk HEAD для нахождения точки расхождения",
+        "Использует arc reset --soft с результатом merge-base",
+        "НЕ требует знания количества коммитов (НЕ HEAD~N с конкретным N)"
+      ],
+      "covers": "reference: reorganize-commits.md, squash via merge-base"
+    },
+    {
+      "id": 42,
+      "prompt": "У меня ветка feature-B отведена от ветки feature-A. Хочу перебазировать feature-B напрямую на trunk.",
+      "expected_output": "Использует arc rebase --onto trunk feature-A feature-B",
+      "files": [],
+      "expectations": [
+        "Использует arc rebase --onto trunk feature-A",
+        "Использует трёхаргументную форму rebase (--onto new-base old-base)"
+      ],
+      "covers": "reference: rebase-sync.md, rebase --onto"
+    },
+    {
+      "id": 43,
+      "prompt": "При cherry-pick возник конфликт, но этот коммит мне не критичен. Хочу его пропустить и продолжить.",
+      "expected_output": "Использует arc cherry-pick --skip",
+      "files": [],
+      "expectations": [
+        "Использует arc cherry-pick --skip (пропустить, не abort)",
+        "НЕ использует arc cherry-pick --abort (это отменяет всё)"
+      ],
+      "covers": "reference: resolve-conflicts.md, --skip"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+title: AI skills for Monkey
+service: techplatform_frontend_devtools
+arcanum:
+  review:
+    auto_assign: true
+    groups:
+      - name: developers
+        roles:
+          - techplatform_frontend_devtools:developer
+          - techplatform_frontend_devtools:frontend_developer
+      - name: admins
+        roles:
+          - techplatform_frontend_devtools:product_head
+          - techplatform_frontend_devtools:product_deputy_head
+    rules:
+      reviewers:
+        - name: developers
+          ship: 1
+          assign: 1
+          ignore_self_ship: true
+        - name: admins
+          ship: 1
+          assign: 1
+          ignore_self_ship: false
