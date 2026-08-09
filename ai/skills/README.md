@@ -25,21 +25,33 @@ ai/skills/
 
 `source`:
 
-* `owner/repo`
-* `owner/repo/tree/...`
-* полный `https://github.com/...`
+* `owner/repo#<full-commit-sha>`
+* `owner/repo#<full-commit-sha>:path/to/subdirectory`
+* полный Git URL с тем же суффиксом `#<sha>[:path]`
+* git-URL (`*.git`, `ssh://...`, `git://...`) — навык ищется по имени в корне репозитория, `skills/` или `.claude/skills/`
+* явный локальный путь: `~/...`, `/...`, `./...` или `../...`
+
+Удалённые источники канонического реестра должны быть закреплены полным SHA.
+Форма без SHA поддерживается как legacy-ввод, который `/dotfiles:install`
+нормализует перед записью.
 
 `spec`:
 
 * `"*"` — установить весь источник
 * `"skill-name"` — установить один навык
 * `["skill-a", "skill-b"]` — установить список
+* `"!skill-name"` или `["!skill-a", "!skill-b"]` — установить весь источник, кроме перечисленных навыков
+
+В одном списке нельзя смешивать включения и исключения: `["skill-a", "!skill-b"]` считается ошибкой.
 
 ## Правила сборки
 
-* `./scripts/install-skills` собирает локальные пакеты и внешние зависимости в `~/.agents/skills`, затем запускает projection в assistant-specific слои
+* `./scripts/install-skills` собирает локальные пакеты и внешние зависимости в `~/.agents/skills`, затем запускает projection в assistant-specific слои (`~/.claude/skills`, `~/.codex/skills`, `~/.cursor/skills`)
+* локальный skill-пакет, подключённый в `ai/skills/` symlink-ом, сохраняется symlink-ом в `~/.agents/skills`
+* для разработки внешнего skill можно вручную заменить его каталог в `~/.agents/skills/<name>` symlink-ом на рабочую копию — `install-skills` уважает такой override и не перетирает его
 * конфликт имени между локальным и внешним skill — жёсткая ошибка
 * конфликт имён между внешними источниками — жёсткая ошибка
+* источник с commands, manifests или общими ресурсами регистрируется целиком в `plugins.json`, а не разрезается на отдельные skills
 * `./scripts/bootstrap-agent-skills` при необходимости мигрирует `codex-primary-runtime` из `~/.codex/skills` в канонический слой, обычно вызывается из `install-skills`
 
 ## Установка

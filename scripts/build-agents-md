@@ -1,0 +1,12 @@
+#!/usr/bin/env zsh
+
+emulate -LR zsh
+set -euo pipefail
+
+repo_root=${0:A:h:h}
+SCRIPT_NAME=build-agents-md
+source "$repo_root/scripts/lib/install-common.zsh"
+source "$repo_root/scripts/lib/instruction-projection.zsh"
+
+instruction_projection_sync_agents "$repo_root"
+print "$SCRIPT_NAME: synced $(instruction_projection_agents_path "$repo_root")"

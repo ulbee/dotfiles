@@ -19,6 +19,7 @@
   - ~/.agents/skills
   - ~/.agents/plugins
   - ~/.codex/plugins
+  - ~/.config/fabric
 
 - link:
     ~/:
@@ -38,17 +39,28 @@
       path: codex/AGENTS.md
     ~/.agents/instructions/:
       glob: true
-      path: ai/instructions/*
+      path: ai/instructions/*.md
     ~/.remarkrc.json:
       path: tools/remark/remarkrc.json
     ~/.local/bin/remark:
       path: scripts/remark
+    ~/.local/bin/openspec:
+      path: scripts/openspec
+    ~/.config/fabric/codex-bridge.mjs:
+      path: fabric/codex-bridge.mjs
+    ~/.config/fabric/README.md:
+      path: fabric/README.md
+    ~/.local/bin/fabric:
+      path: scripts/fabric
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
+  - [./scripts/personal check, Checking personal variables]
   - [brew bundle --file=Brewfile, Installing Homebrew packages]
   - [./scripts/install-skills, Syncing AI skills]
   - [./scripts/install-plugins, Installing local Codex plugins]
   - [./scripts/install-mcp, Syncing MCP runtimes and generated configs]
   - [./scripts/install-remark, Installing remark toolchain]
-  - ["git config filter.eliza-url.clean 'sd -s \"$ELIZA_API_HOST\" \"ELIZA_API_HOST\" -f -' && git config filter.eliza-url.smudge 'sd -s \"ELIZA_API_HOST\" \"$ELIZA_API_HOST\" -f -'", Configuring git clean/smudge filter for internal URLs]
+  - [./scripts/install-openspec, Installing OpenSpec toolchain]
+  - [./scripts/install-fabric, Configuring Fabric → Codex bridge]
+  - [./scripts/personal configure-git-filter, Configuring git clean/smudge filter for internal URLs]

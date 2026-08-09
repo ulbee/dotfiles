@@ -10,9 +10,12 @@ trap 'rm -rf "$tmp_root"' EXIT
 fixture_root="$tmp_root/repo"
 home_dir="$tmp_root/home"
 bin_dir="$tmp_root/bin"
+linked_skill_source="$fixture_root/local-skill-source/linked-one"
 
 mkdir -p \
   "$fixture_root/ai/skills/local-one" \
+  "$linked_skill_source" \
+  "$fixture_root/remote-skill-src/skills/git-skill" \
   "$fixture_root/scripts/lib" \
   "$fixture_root/scripts/tests" \
   "$home_dir" \
@@ -20,17 +23,39 @@ mkdir -p \
 
 cp "$repo_root/scripts/install-skills" "$fixture_root/scripts/install-skills"
 cp "$repo_root/scripts/lib/install-common.zsh" "$fixture_root/scripts/lib/install-common.zsh"
+cp "$repo_root/scripts/lib/skill-acquisition.zsh" "$fixture_root/scripts/lib/skill-acquisition.zsh"
+cp "$repo_root/scripts/lib/agent-skills-layer.zsh" "$fixture_root/scripts/lib/agent-skills-layer.zsh"
 cp "$repo_root/scripts/bootstrap-agent-skills" "$fixture_root/scripts/bootstrap-agent-skills"
 
 cat > "$fixture_root/ai/skills/local-one/SKILL.md" <<'EOF'
 # local-one
 EOF
 
-cat > "$fixture_root/ai/skills/skills.json" <<'EOF'
+cat > "$linked_skill_source/SKILL.md" <<'EOF'
+# linked-one
+EOF
+
+ln -s "$linked_skill_source" "$fixture_root/ai/skills/linked-one"
+linked_skill_source="${linked_skill_source:A}"
+
+git_skill_src="$fixture_root/remote-skill-src"
+git_skill_url="file://${git_skill_src:A}"
+
+cat > "$fixture_root/ai/skills/skills.json" <<EOF
 {
-  "example/source": "external-one"
+  "example/source": "external-one",
+  "example/exclude": ["!all-two"],
+  "$git_skill_url": "git-skill"
 }
 EOF
+
+cat > "$fixture_root/remote-skill-src/skills/git-skill/SKILL.md" <<'EOF'
+# git-skill
+EOF
+
+git -C "$git_skill_src" init -q
+git -C "$git_skill_src" add -A
+git -C "$git_skill_src" -c user.email=test@example.com -c user.name=test commit -q -m init
 
 cat > "$bin_dir/npx" <<'EOF'
 #!/usr/bin/env zsh
@@ -39,12 +64,12 @@ emulate -LR zsh
 set -euo pipefail
 
 [[ $# -ge 3 ]] || {
-  print -u2 "unexpected npx invocation"
+  print -u2 "неожиданный запуск npx"
   exit 1
 }
 
 [[ "$1" == "skills" && "$2" == "add" ]] || {
-  print -u2 "unexpected npx command: $*"
+  print -u2 "неожиданная команда npx: $*"
   exit 1
 }
 
@@ -65,13 +90,17 @@ while (( $# > 0 )); do
       shift 2
       ;;
     *)
-      print -u2 "unexpected npx argument: $1"
+      print -u2 "неожиданный параметр npx: $1"
       exit 1
       ;;
   esac
 done
 
 mkdir -p .agents/skills
+
+if (( ${#requested_skills[@]} == 0 )); then
+  requested_skills=(all-one all-two)
+fi
 
 for skill_name in "${requested_skills[@]}"; do
   mkdir -p ".agents/skills/$skill_name"
@@ -90,14 +119,14 @@ assert_path_exists() {
   local path=$1
   local label=$2
 
-  [[ -e "$path" || -L "$path" ]] || fail "missing: $label ($path)"
+  [[ -e "$path" || -L "$path" ]] || fail "не найдено: $label ($path)"
 }
 
 assert_not_exists() {
   local path=$1
   local label=$2
 
-  [[ ! -e "$path" && ! -L "$path" ]] || fail "unexpected entry: $label ($path)"
+  [[ ! -e "$path" && ! -L "$path" ]] || fail "неожиданная запись: $label ($path)"
 }
 
 assert_symlink_target() {
@@ -106,10 +135,15 @@ assert_symlink_target() {
   local label=$3
   local actual_target
 
-  [[ -L "$path" ]] || fail "expected symlink: $label ($path)"
+  [[ -L "$path" ]] || fail "ожидалась символическая ссылка: $label ($path)"
   actual_target=$(/usr/bin/readlink "$path")
-  [[ "$actual_target" == "$expected_target" ]] || fail "unexpected symlink target for $label: $actual_target"
+  [[ "$actual_target" == "$expected_target" ]] || fail "неожиданная цель символической ссылки $label: $actual_target"
 }
+
+if PATH="$bin_dir:$PATH" HOME="$home_dir" zsh "$fixture_root/scripts/install-skills" \
+  --local-only --force >/dev/null 2>&1; then
+  fail "несовместимые режимы локальной синхронизации и обновления приняты вместе"
+fi
 
 mkdir -p "$home_dir/.codex/skills/.system"
 print -r -- "keep" > "$home_dir/.codex/skills/.system/keep.txt"
@@ -119,22 +153,70 @@ print -r -- "# slides" > "$home_dir/.codex/skills/codex-primary-runtime/slides/S
 
 mkdir -p "$home_dir/.codex/skills/unmanaged"
 mkdir -p "$home_dir/.claude/skills"
+mkdir -p "$home_dir/.cursor/skills"
 ln -s "$home_dir/.agents/skills/missing" "$home_dir/.claude/skills/stale"
 
 PATH="$bin_dir:$PATH" HOME="$home_dir" zsh "$fixture_root/scripts/install-skills"
 
-assert_path_exists "$home_dir/.agents/skills/local-one" "canonical local skill"
-assert_path_exists "$home_dir/.agents/skills/external-one" "canonical external skill"
-assert_path_exists "$home_dir/.agents/skills/codex-primary-runtime/slides/SKILL.md" "migrated codex-primary-runtime bundle"
-assert_symlink_target "$home_dir/.claude/skills/local-one" "$home_dir/.agents/skills/local-one" "claude local skill link"
-assert_symlink_target "$home_dir/.codex/skills/local-one" "$home_dir/.agents/skills/local-one" "codex local skill link"
-assert_symlink_target "$home_dir/.codex/skills/codex-primary-runtime" "$home_dir/.agents/skills/codex-primary-runtime" "codex shared bundle link"
-assert_path_exists "$home_dir/.codex/skills/.system/keep.txt" "codex system bundle"
-assert_path_exists "$home_dir/.codex/skills/unmanaged" "unmanaged codex entry"
-assert_not_exists "$home_dir/.claude/skills/stale" "stale claude link"
+assert_path_exists "$home_dir/.agents/skills/local-one" "канонический локальный навык"
+assert_symlink_target "$home_dir/.agents/skills/linked-one" "$linked_skill_source" "ссылка канонического локального навыка"
+assert_path_exists "$home_dir/.agents/skills/external-one" "канонический внешний навык"
+assert_path_exists "$home_dir/.agents/skills/all-one" "включённый навык из спецификации исключений"
+assert_not_exists "$home_dir/.agents/skills/all-two" "исключённый навык"
+assert_path_exists "$home_dir/.agents/skills/git-skill/SKILL.md" "навык, клонированный через Git"
+[[ -d "$home_dir/.agents/skills/git-skill" && ! -L "$home_dir/.agents/skills/git-skill" ]] || fail "навык из Git должен быть настоящим каталогом"
+assert_path_exists "$home_dir/.agents/skills/codex-primary-runtime/slides/SKILL.md" "перенесённый пакет codex-primary-runtime"
+assert_symlink_target "$home_dir/.claude/skills/local-one" "$home_dir/.agents/skills/local-one" "ссылка локального навыка Claude"
+assert_symlink_target "$home_dir/.cursor/skills/all-one" "$home_dir/.agents/skills/all-one" "ссылка включённого навыка Cursor"
+assert_symlink_target "$home_dir/.codex/skills/linked-one" "$home_dir/.agents/skills/linked-one" "ссылка связанного навыка Codex"
+assert_symlink_target "$home_dir/.codex/skills/local-one" "$home_dir/.agents/skills/local-one" "ссылка локального навыка Codex"
+assert_symlink_target "$home_dir/.cursor/skills/local-one" "$home_dir/.agents/skills/local-one" "ссылка локального навыка Cursor"
+assert_symlink_target "$home_dir/.codex/skills/codex-primary-runtime" "$home_dir/.agents/skills/codex-primary-runtime" "ссылка общего пакета Codex"
+assert_path_exists "$home_dir/.codex/skills/.system/keep.txt" "системный пакет Codex"
+assert_path_exists "$home_dir/.codex/skills/unmanaged" "неуправляемая запись Codex"
+assert_not_exists "$home_dir/.claude/skills/stale" "устаревшая ссылка Claude"
+
+# Локальная синхронизация обновляет исходники и проекции, но не вызывает
+# установщик внешних навыков и не удаляет уже установленные зависимости.
+print -r -- "# local-one, обновлён" > "$fixture_root/ai/skills/local-one/SKILL.md"
+cp "$bin_dir/npx" "$bin_dir/npx-full"
+cat > "$bin_dir/npx" <<'EOF'
+#!/usr/bin/env zsh
+print -u2 'npx не должен запускаться в режиме --local-only'
+exit 1
+EOF
+chmod +x "$bin_dir/npx"
+
+PATH="$bin_dir:$PATH" HOME="$home_dir" zsh "$fixture_root/scripts/install-skills" --local-only
+
+ugrep -Fq '# local-one, обновлён' "$home_dir/.agents/skills/local-one/SKILL.md" \
+  || fail "режим --local-only не обновил локальный навык"
+assert_path_exists "$home_dir/.agents/skills/external-one" "внешний навык, сохранённый режимом --local-only"
+assert_path_exists "$home_dir/.agents/skills/all-one" "навык install-all, сохранённый режимом --local-only"
+assert_path_exists "$home_dir/.agents/skills/git-skill" "навык Git, сохранённый режимом --local-only"
+
+# Ручная символическая ссылка на внешний навык считается локальным
+# переопределением и должна пережить повторную установку.
+external_override_src="${fixture_root:A}/external-override"
+mkdir -p "$external_override_src"
+print -r -- "# external-one" > "$external_override_src/SKILL.md"
+rm -rf "$home_dir/.agents/skills/external-one"
+ln -s "$external_override_src" "$home_dir/.agents/skills/external-one"
+cp "$bin_dir/npx-full" "$bin_dir/npx"
+PATH="$bin_dir:$PATH" HOME="$home_dir" zsh "$fixture_root/scripts/install-skills"
+assert_symlink_target "$home_dir/.agents/skills/external-one" "$external_override_src" "сохранённое локальное переопределение внешнего навыка"
 
 PATH="$bin_dir:$PATH" HOME="$home_dir" zsh "$fixture_root/scripts/install-skills"
 
-assert_path_exists "$home_dir/.agents/skills/codex-primary-runtime/slides/SKILL.md" "preserved canonical bundle"
+mkdir -p "$home_dir/.agents/skills/direct-bootstrap"
+print -r -- "# direct-bootstrap" > "$home_dir/.agents/skills/direct-bootstrap/SKILL.md"
+
+PATH="$bin_dir:$PATH" HOME="$home_dir" zsh "$fixture_root/scripts/bootstrap-agent-skills"
+
+assert_symlink_target "$home_dir/.claude/skills/direct-bootstrap" "$home_dir/.agents/skills/direct-bootstrap" "прямая проекция Claude"
+assert_symlink_target "$home_dir/.codex/skills/direct-bootstrap" "$home_dir/.agents/skills/direct-bootstrap" "прямая проекция Codex"
+assert_symlink_target "$home_dir/.cursor/skills/direct-bootstrap" "$home_dir/.agents/skills/direct-bootstrap" "прямая проекция Cursor"
+
+assert_path_exists "$home_dir/.agents/skills/codex-primary-runtime/slides/SKILL.md" "сохранённый канонический пакет"
 
 print "test-skill-layering: ok"

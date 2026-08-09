@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Возвращает рабочую область одного плана для заданий, отчётов, пакетов
+# и журнала. Каталог находится в рабочем дереве и скрыт от Git файлом .gitignore.
+#
+# Использование: sdd-workspace ФАЙЛ_ПЛАНА
+set -euo pipefail
+
+if [ $# -ne 1 ]; then
+  echo "использование: sdd-workspace ФАЙЛ_ПЛАНА" >&2
+  exit 2
+fi
+
+plan=$1
+[ -f "$plan" ] || { echo "нет файла плана: $plan" >&2; exit 2; }
+
+root=$(git -C "$(dirname "$plan")" rev-parse --show-toplevel)
+root=$(cd "$root" && pwd -P)
+canonical_plan=$(realpath "$plan")
+
+case "$canonical_plan" in
+  "$root"/*) ;;
+  *)
+    echo "файл плана находится вне корня Git: $plan" >&2
+    exit 2
+    ;;
+esac
+
+relative_plan=${canonical_plan#"$root"/}
+slug=$(basename "$canonical_plan" .md)
+[ -n "$slug" ] && [ "$slug" != "." ] && [ "$slug" != ".." ] \
+  || { echo "не удалось получить имя рабочей области из пути: $plan" >&2; exit 2; }
+
+path_hash=$(printf '%s' "$relative_plan" | git -C "$root" hash-object --stdin)
+path_hash=${path_hash:0:8}
+base="$root/.superpowers/sdd"
+dir="$base/$slug-$path_hash"
+mkdir -p "$dir"
+printf '*\n' > "$base/.gitignore"
+cd "$dir" && pwd

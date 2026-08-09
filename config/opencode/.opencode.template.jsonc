@@ -1,11 +1,14 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["oh-my-openagent"],
+  "plugin": [
+    "oh-my-openagent"
+  ],
   "instructions": [
+    "~/.agents/instructions/agents.md",
+    "~/.agents/instructions/cli.md",
     "~/.agents/instructions/engineering.md",
     "~/.agents/instructions/language.md",
     "~/.agents/instructions/search.md",
-    "~/.agents/instructions/cli.md",
     "~/.agents/instructions/worktrees.md"
   ],
   "provider": {
@@ -13,7 +16,7 @@
       "name": "Eliza Anthropic",
       "npm": "@ai-sdk/anthropic",
       "options": {
-        "baseURL": "https:///raw/anthropic/v1",
+        "baseURL": "https://ELIZA_API_HOST/raw/anthropic/v1",
         "apiKey": "{env:ELIZA_TOKEN}"
       },
       "models": {
@@ -80,7 +83,7 @@
       "name": "Eliza GLM 4.7 (internal)",
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "https:///raw/internal/glm-4-7/v1",
+        "baseURL": "https://ELIZA_API_HOST/raw/internal/glm-4-7/v1",
         "apiKey": "{env:ELIZA_TOKEN}"
       },
       "models": {
@@ -107,7 +110,7 @@
       "name": "Eliza Kimi 2.5 (internal BETA)",
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "https:///raw/internal/kimi-k2-5/v1",
+        "baseURL": "https://ELIZA_API_HOST/raw/internal/kimi-k2-5/v1",
         "apiKey": "{env:ELIZA_TOKEN}"
       },
       "models": {
@@ -136,7 +139,7 @@
       "name": "Eliza MiniMax M2.1 (internal BETA)",
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "https:///raw/internal/mini-max-m2-1/v1",
+        "baseURL": "https://ELIZA_API_HOST/raw/internal/mini-max-m2-1/v1",
         "apiKey": "{env:ELIZA_TOKEN}"
       },
       "models": {
@@ -163,7 +166,7 @@
       "name": "Eliza OpenAI",
       "npm": "@ai-sdk/openai",
       "options": {
-        "baseURL": "https:///openai/v1",
+        "baseURL": "https://ELIZA_API_HOST/openai/v1",
         "apiKey": "{env:ELIZA_TOKEN}"
       },
       "models": {
@@ -245,15 +248,17 @@
       "name": "Eliza OpenRouter",
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "https:///openrouter/v1/",
+        "baseURL": "https://ELIZA_API_HOST/openrouter/v1/",
         "apiKey": "{env:ELIZA_TOKEN}"
       }
     },
     "openrouter": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "OpenRouter",
-      "options": { "baseURL": "https://openrouter.ai/api/v1" }
+      "options": {
+        "baseURL": "https://openrouter.ai/api/v1"
+      }
     }
   },
-  "mcp": __MCP_JSON__
+  "mcp": {}
 }
