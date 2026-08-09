@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.eliza.yandex.net/raw/anthropic"
+  },
   "permissions": {
     "allow": [
       "Bash(ugrep:*)",
@@ -151,6 +154,7 @@
       "/private/tmp"
     ]
   },
+  "model": "opus[1m]",
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
@@ -171,9 +175,6 @@
         "repo": "nicobailon/visual-explainer"
       }
     }
-  },
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://api.eliza.yandex.net/raw/anthropic"
   },
   "effortLevel": "xhigh",
   "alwaysThinkingEnabled": true

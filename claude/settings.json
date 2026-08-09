@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/yusokolova/.claude/skills/sandbox/sandbox-cli.sh failed *)",
+      "Read(//Users/yusokolova/.claude/skills/**)",
+      "Bash(/Users/yusokolova/.claude/skills/sandbox/scripts/sandbox-cli.sh failed *)",
+      "Bash(/Users/yusokolova/.claude/skills/sandbox/scripts/sandbox-cli.sh search-log *)",
+      "Read(//Users/yusokolova/arcadia/hrtech/frontend/services/moebius-lab/**)",
+      "Bash([ -d $MO/.arc ])",
+      "Read(//Users/yusokolova/arcadia/hrtech/frontend/**)",
+      "Read(//Users/yusokolova/arcadia/hrtech/frontend/services/moebius-lab/.next/**)",
+      "Bash(ugrep -n this.props.clientConfig /Users/yusokolova/arcadia/hrtech/frontend/services/moebius-lab/src/pages/_app.tsx)"
+    ]
+  },
+  "theme": "light"
+}

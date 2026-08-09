@@ -1,0 +1,106 @@
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+notify = ["/Users/yusokolova/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+sandbox_mode = "workspace-write"
+model_verbosity = "medium"
+personality = "pragmatic"
+service_tier = "default"
+
+[projects."/Users/yusokolova/dotfiles"]
+trust_level = "trusted"
+
+[projects."/Users/yusokolova/arcadia/hrtech/frontend/services/lms"]
+trust_level = "trusted"
+
+[projects."/Users/yusokolova/arcadia2/hrtech/frontend/services/lms"]
+trust_level = "trusted"
+
+[projects."/Users/yusokolova/arcadia2/hrtech/frontend/services/moebius-lab"]
+trust_level = "trusted"
+
+[projects."/Users/yusokolova/arcadia4/hrtech/frontend/services/moebius-lab"]
+trust_level = "trusted"
+
+[projects."/Users/yusokolova/arcadia4/hrtech/frontend/services/lms"]
+trust_level = "trusted"
+
+[projects."/Users/yusokolova/arcadia/ai"]
+trust_level = "trusted"
+
+[desktop]
+localeOverride = "ru-RU"
+preventSleepWhileRunning = true
+keepRemoteControlAwakeWhilePluggedIn = true
+followUpQueueMode = "queue"
+dock-icon-preference = "app-default"
+show-context-window-usage = true
+enabled-reasoning-efforts = ["low", "medium", "high", "xhigh", "ultra", "max"]
+git-pull-request-merge-method = "squash"
+git-create-pull-request-as-draft = false
+appearanceTheme = "dark"
+
+[desktop.open-in-target-preferences]
+global = "systemDefault"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-08-06T08:38:56Z"
+source_type = "local"
+source = "/Users/yusokolova/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-08-06T06:35:00Z"
+source_type = "local"
+source = "/Users/yusokolova/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."pdf@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."template-creator@openai-primary-runtime"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[features]
+js_repl = false
+
+[shell_environment_policy.set]
+BROWSER_USE_AVAILABLE_BACKENDS = "iab"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "091a81603ff202a16ed56557709bf42d97caf8f0dd2e07ae9e26d7c014d71035"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/yusokolova/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+
+[sandbox_workspace_write]
+network_access = true
+
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/yusokolova/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+CODEX_HOME = "/Users/yusokolova/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "091a81603ff202a16ed56557709bf42d97caf8f0dd2e07ae9e26d7c014d71035"
+BROWSER_USE_AVAILABLE_BACKENDS = "iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.730.61639"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"

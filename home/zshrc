@@ -71,6 +71,7 @@ alias l1='l -1a'
 alias ll='l -lah'
 alias t='eza -Ta --icons'
 alias icat='kitten icat'
+alias p='pnpm'
 
 alias kitty-light='kitty +kitten themes --reload-in=all Catppuccin-Latte'
 alias kitty-dark='kitty +kitten themes --reload-in=all Catppuccin-Mocha'
@@ -191,6 +192,7 @@ current_vcs() {
     alias cl="$CURRENT_VCS clone"
     alias st="$CURRENT_VCS status"
     alias di="$CURRENT_VCS diff"
+    alias df="$CURRENT_VCS diff"
     alias ad="$CURRENT_VCS add"
     alias ci="$CURRENT_VCS commit"
     alias co='$CURRENT_VCS checkout'
@@ -207,6 +209,7 @@ current_vcs() {
         ;;
       arc)
         alias p='arc pull trunk'
+        alias pr='arc create pr'
         ;;
       *)
         ;;
@@ -397,6 +400,8 @@ yc() {
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-export ANTHROPIC_BASE_URL="https://api.eliza.yandex.net/raw/anthropic"
-export ANTHROPIC_AUTH_TOKEN=$(ya tool fetch-token -client-id "d1f988f246c44274b9fdef4feaaf8ad7" -client-secret "e865e4f30d3d4a4e945dd5304ab265dd")
+#export ANTHROPIC_BASE_URL="https://api.eliza.yandex.net/raw/anthropic"
+#export ANTHROPIC_AUTH_TOKEN=$(ya tool fetch-token -client-id "d1f988f246c44274b9fdef4feaaf8ad7" -client-secret "e865e4f30d3d4a4e945dd5304ab265dd")
 export NODE_EXTRA_CA_CERTS=~/.ssh/YandexInternalCA.pem
+
+export ARCADIA_ROOT=/Users/yusokolova/arcadia

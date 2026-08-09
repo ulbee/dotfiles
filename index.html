@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dotfiles Конфигурации</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/ini.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/lua.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --background-color: #f5f7fa;
+            --sidebar-bg: #ecf0f1;
+            --hover-color: #e0e6ed;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: var(--sidebar-bg);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            transition: background-color 0.2s;
+        }
+
+        .file-item:hover {
+            background-color: var(--hover-color);
+        }
+
+        .file-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .file-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        code {
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .no-file-selected {
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 100px;
+            font-size: 18px;
+        }
+
+        .file-path {
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 100px;
+            color: var(--primary-color);
+        }
+
+        .error {
+            color: #e74c3c;
+            padding: 10px;
+            background-color: #fadbd8;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>Dotfiles</h1>
+            <input type="text" class="search-box" placeholder="Поиск файлов..." id="search-input">
+            <ul class="file-list" id="file-list"></ul>
+        </div>
+        <div class="content">
+            <div id="file-display">
+                <div class="no-file-selected">Выберите файл из списка слева для просмотра его содержимого</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileList = document.getElementById('file-list');
+            const fileDisplay = document.getElementById('file-display');
+            const searchInput = document.getElementById('search-input');
+
+            // Список конфигурационных файлов в текущей директории
+            const configFiles = [
+                '.arcconfig',
+                '.arcignore',
+                '.gitconfig',
+                '.gitignore',
+                '.gitmodules',
+                '.profile',
+                '.zprofile',
+                '.zsh_plugins.txt',
+                '.zshrc',
+                'Brewfile',
+                'gitalias.txt',
+                'install.conf.yaml',
+                'kitty/kitty.conf',
+                'kitty/launch-actions.conf',
+                'kitty/themes/Catppuccin-Latte.conf',
+                'kitty/themes/Catppuccin-Mocha.conf',
+                'kitty/themes/yacolors.conf',
+                'nvim/init.lua',
+                'nvim/lua/plugins.lua',
+                'nvim/lua/utils.lua'
+            ];
+
+            // Функция для определения языка подсветки синтаксиса
+            function getLanguageFromFilename(filename) {
+                const extension = filename.split('.').pop();
+                const basename = filename.split('/').pop();
+
+                if (filename.startsWith('.git')) return 'ini';
+                if (filename.endsWith('.lua')) return 'lua';
+                if (filename.endsWith('.yaml') || filename.endsWith('.yml')) return 'yaml';
+                if (filename.endsWith('.conf')) return 'ini';
+                if (filename.endsWith('.txt')) return 'plaintext';
+                if (basename === '.zshrc' || basename === '.profile' || basename === '.zprofile') return 'bash';
+                if (basename === 'Brewfile') return 'ruby';
+
+                return 'plaintext';
+            }
+
+            // Заполнение списка файлов
+            function populateFileList(files) {
+                fileList.innerHTML = '';
+                files.forEach(file => {
+                    const li = document.createElement('li');
+                    li.className = 'file-item';
+                    li.textContent = file;
+                    li.addEventListener('click', () => loadFileContent(file));
+                    fileList.appendChild(li);
+                });
+            }
+
+            // Загрузка содержимого файла
+            function loadFileContent(filePath) {
+                // Удаление активного класса со всех элементов
+                document.querySelectorAll('.file-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Добавление активного класса к выбранному элементу
+                document.querySelectorAll('.file-item').forEach(item => {
+                    if (item.textContent === filePath) {
+                        item.classList.add('active');
+                    }
+                });
+
+                // Отображение загрузки
+                fileDisplay.innerHTML = '<div class="loading">Загрузка содержимого файла...</div>';
+
+                // Имитация загрузки файла с предопределенным содержимым
+                setTimeout(() => {
+                    // В реальном приложении здесь был бы запрос к серверу
+                    // Но для локального файла мы используем предопределенные данные
+                    const fileContents = {
+                        '.gitconfig': `[user]\n\tname = Имя Пользователя\n\temail = user@example.com\n[core]\n\teditor = vim\n\tpager = less -FRX`,
+                        '.zshrc': `# Пример содержимого .zshrc\nexport PATH=$HOME/bin:/usr/local/bin:$PATH\nalias ll='ls -la'\nalias gs='git status'`,
+                        'Brewfile': `# Пример Brewfile\nbrew "git"\nbrew "node"\nbrew "python"\ncask "visual-studio-code"\ncask "firefox"`,
+                        'install.conf.yaml': `- defaults:\n    link:\n      relink: true\n      create: true\n\n- clean: ['~']\n\n- link:\n    ~/.gitconfig: .gitconfig\n    ~/.zshrc: .zshrc`
+                    };
+
+                    const language = getLanguageFromFilename(filePath);
+                    let content = fileContents[filePath] || `# Содержимое файла ${filePath}\n# Для просмотра реального содержимого необходим сервер`;
+
+                    fileDisplay.innerHTML = `
+                        <div class="file-path">Файл: ${filePath}</div>
+                        <div class="file-content">
+                            <pre><code class="language-${language}">${escapeHtml(content)}</code></pre>
+                        </div>
+                        <div style="margin-top: 15px; font-size: 14px; color: #7f8c8d;">
+                            Примечание: Для просмотра актуального содержимого файлов требуется запуск локального сервера.
+                            Сейчас отображается демонстрационное содержимое.
+                        </div>
+                    `;
+
+                    // Применение подсветки синтаксиса
+                    document.querySelectorAll('pre code').forEach((block) => {
+                        hljs.highlightElement(block);
+                    });
+                }, 300);
+            }
+
+            // Функция для экранирования HTML
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Обработчик поиска
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filteredFiles = configFiles.filter(file =>
+                    file.toLowerCase().includes(searchTerm)
+                );
+                populateFileList(filteredFiles);
+            });
+
+            // Инициализация списка файлов
+            populateFileList(configFiles);
+
+            // Инструкция по запуску с сервером
+            const serverInstructions = `
+                <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 4px; border-left: 4px solid #3498db;">
+                    <h3 style="margin-top: 0; color: #2c3e50;">Для просмотра реального содержимого файлов:</h3>
+                    <ol style="padding-left: 20px;">
+                        <li>Установите простой HTTP-сервер, например с помощью Python:
+                            <pre style="background-color: #eee; padding: 8px; border-radius: 4px; margin: 10px 0;">python -m http.server</pre>
+                        </li>
+                        <li>Или с помощью Node.js:
+                            <pre style="background-color: #eee; padding: 8px; border-radius: 4px; margin: 10px 0;">npx serve</pre>
+                        </li>
+                        <li>Затем создайте серверный скрипт для чтения файлов и отправки их содержимого.</li>
+                    </ol>
+                </div>
+            `;
+
+            // Добавление инструкций в конец контента
+            document.querySelector('.content').insertAdjacentHTML('beforeend', serverInstructions);
+        });
+    </script>
+</body>
+</html>
